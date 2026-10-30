@@ -1,0 +1,30 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Runtime data (uploads, SQLite database, indexes, batch results)
+data/
+
+# Frontend dependencies and build output are not source, but frontend/dist is
+# kept so the pre-built UI ships with this deliverable and FastAPI can serve it.
+frontend/node_modules/
+frontend/.vite/
+
+# Logs and OS clutter
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.idea/
+.vscode/

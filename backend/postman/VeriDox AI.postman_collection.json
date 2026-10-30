@@ -1,0 +1,233 @@
+{
+  "info": {
+    "name": "VeriDox AI",
+    "description": "Enterprise Knowledge Assistant API. Start the backend first (uvicorn app.main:app --port 8000), then run the requests in order. Document upload responses store `document_id`; batch upload stores `batch_job_id`; conversation creation stores `conversation_id` in collection variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "document_id", "value": "" },
+    { "key": "conversation_id", "value": "" },
+    { "key": "batch_job_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] } }
+        },
+        {
+          "name": "Workspace statistics",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/stats", "host": ["{{base_url}}"], "path": ["api", "stats"] } }
+        },
+        {
+          "name": "Runtime settings (no secrets)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/system/settings", "host": ["{{base_url}}"], "path": ["api", "system", "settings"] } }
+        },
+        {
+          "name": "Index status",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/index/status", "host": ["{{base_url}}"], "path": ["api", "index", "status"] } }
+        },
+        {
+          "name": "Rebuild index",
+          "request": { "method": "POST", "header": [], "url": { "raw": "{{base_url}}/api/index/rebuild", "host": ["{{base_url}}"], "path": ["api", "index", "rebuild"] } }
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "Upload document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.id) { pm.collectionVariables.set('document_id', body.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "scripts/demo_documents/Leave_Policy_2026.md" },
+                { "key": "effective_from", "value": "2026-01-01", "type": "text" },
+                { "key": "version_label", "value": "2026.1", "type": "text" }
+              ]
+            },
+            "url": { "raw": "{{base_url}}/api/documents/upload", "host": ["{{base_url}}"], "path": ["api", "documents", "upload"] },
+            "description": "Select a PDF, TXT or Markdown file in the form-data row. Ingestion continues in the background; poll Get document until status is completed."
+          }
+        },
+        {
+          "name": "Upload multiple documents",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "files", "type": "file", "src": "scripts/demo_documents/Travel_and_Expense_Policy_2026.txt" },
+                { "key": "files", "type": "file", "src": "scripts/demo_documents/Remote_Work_SOP_2026.md" }
+              ]
+            },
+            "url": { "raw": "{{base_url}}/api/documents/upload-multiple", "host": ["{{base_url}}"], "path": ["api", "documents", "upload-multiple"] }
+          }
+        },
+        {
+          "name": "List documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documents?limit=50&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents"],
+              "query": [
+                { "key": "limit", "value": "50" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get document",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/documents/{{document_id}}", "host": ["{{base_url}}"], "path": ["api", "documents", "{{document_id}}"] } }
+        },
+        {
+          "name": "List versions",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/documents/{{document_id}}/versions", "host": ["{{base_url}}"], "path": ["api", "documents", "{{document_id}}", "versions"] } }
+        },
+        {
+          "name": "Add document version",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "scripts/demo_documents/Leave_Policy_2026.md" },
+                { "key": "effective_from", "value": "2026-01-01", "type": "text" },
+                { "key": "version_label", "value": "2026.1", "type": "text" }
+              ]
+            },
+            "url": { "raw": "{{base_url}}/api/documents/{{document_id}}/versions", "host": ["{{base_url}}"], "path": ["api", "documents", "{{document_id}}", "versions"] }
+          }
+        },
+        {
+          "name": "Delete document",
+          "request": { "method": "DELETE", "header": [], "url": { "raw": "{{base_url}}/api/documents/{{document_id}}", "host": ["{{base_url}}"], "path": ["api", "documents", "{{document_id}}"] } }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Create conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.id) { pm.collectionVariables.set('conversation_id', body.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Policy questions\"\n}" },
+            "url": { "raw": "{{base_url}}/api/chat/conversations", "host": ["{{base_url}}"], "path": ["api", "chat", "conversations"] }
+          }
+        },
+        {
+          "name": "Ask question",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"question\": \"How many annual leave days do employees get in 2026?\",\n  \"conversation_id\": \"{{conversation_id}}\"\n}" },
+            "url": { "raw": "{{base_url}}/api/chat/ask", "host": ["{{base_url}}"], "path": ["api", "chat", "ask"] }
+          }
+        },
+        {
+          "name": "Ask follow-up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"question\": \"And how many sick leave days is that in 2025?\",\n  \"conversation_id\": \"{{conversation_id}}\"\n}" },
+            "url": { "raw": "{{base_url}}/api/chat/ask", "host": ["{{base_url}}"], "path": ["api", "chat", "ask"] }
+          }
+        },
+        {
+          "name": "List conversations",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/chat/conversations", "host": ["{{base_url}}"], "path": ["api", "chat", "conversations"] } }
+        },
+        {
+          "name": "Get conversation",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/chat/conversations/{{conversation_id}}", "host": ["{{base_url}}"], "path": ["api", "chat", "conversations", "{{conversation_id}}"] } }
+        },
+        {
+          "name": "Delete conversation",
+          "request": { "method": "DELETE", "header": [], "url": { "raw": "{{base_url}}/api/chat/conversations/{{conversation_id}}", "host": ["{{base_url}}"], "path": ["api", "chat", "conversations", "{{conversation_id}}"] } }
+        }
+      ]
+    },
+    {
+      "name": "Batch",
+      "item": [
+        {
+          "name": "Upload batch CSV",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.id) { pm.collectionVariables.set('batch_job_id', body.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "scripts/demo_batch_questions.csv" }
+              ]
+            },
+            "url": { "raw": "{{base_url}}/api/batch/upload", "host": ["{{base_url}}"], "path": ["api", "batch", "upload"] },
+            "description": "CSV must contain a `question` column. An optional `id` column is preserved in the result file."
+          }
+        },
+        {
+          "name": "List batch jobs",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/batch/jobs", "host": ["{{base_url}}"], "path": ["api", "batch", "jobs"] } }
+        },
+        {
+          "name": "Batch job status",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/batch/{{batch_job_id}}/status", "host": ["{{base_url}}"], "path": ["api", "batch", "{{batch_job_id}}", "status"] } }
+        },
+        {
+          "name": "Download batch results",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/batch/{{batch_job_id}}/download", "host": ["{{base_url}}"], "path": ["api", "batch", "{{batch_job_id}}", "download"] } }
+        }
+      ]
+    }
+  ]
+}

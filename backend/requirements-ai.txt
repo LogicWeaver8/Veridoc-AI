@@ -1,0 +1,14 @@
+# Optional AI features. Not installed in the default setup and not required to
+# run the application. Install with:
+#   pip install -r backend/requirements-ai.txt
+#
+# Neural embeddings and CrossEncoder reranking. Then set:
+#   EMBEDDING_PROVIDER=sentence-transformers
+#   RERANKER_ENABLED=true
+# The first run downloads the model weights from Hugging Face.
+sentence-transformers>=3.0
+
+# OCR for scanned PDFs. Also requires the Tesseract binary on PATH
+# (for example `apt install tesseract-ocr` or the Windows installer).
+pytesseract>=0.3.13
+Pillow>=10.0
